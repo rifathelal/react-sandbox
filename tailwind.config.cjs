@@ -6,6 +6,10 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        'primary': 'var(--primary-colour)',
+        'secondary': 'var(--secondary-colour)',
+      },
       textColor: {
         'primary': 'var(--secondary-colour)',
       },
@@ -17,10 +21,6 @@ module.exports = {
         'primary': 'var(--secondary-colour)',
       }
     },
-    colors: {
-      'primary': 'var(--primary-colour)',
-      'secondary': 'var(--secondary-colour)',
-    }
   },
   plugins: [],
 }

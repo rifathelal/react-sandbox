@@ -1,31 +1,11 @@
-import { useState } from "react";
-import { ReactComponent as Cross } from '../assets/cross.svg';
-import { ReactComponent as Circle } from '../assets/circle.svg';
+import { useState } from "react"
+import { ReactComponent as Cross } from "../assets/cross.svg";
+import { ReactComponent as Circle } from "../assets/circle.svg";
 
-function TicTacToe() {
-  const [currentPlayer, setCurrentPlayer] = useState("X")
-  const [winner, setWinner] = useState("")
-  const [board, setBoard] = useState(Array(9).fill(null) as (string|null)[])
-  
-  const setValue = (i: number) => {
-    if (winner) return;
-    if (!board[i]) {
-      const newBoard = board.slice();
-      newBoard[i] = currentPlayer;
-      setBoard(newBoard);
-      let winner = checkForWinner(newBoard);
-      if (winner) {
-        setWinner(winner)
-        setCurrentPlayer("");
-      } else setCurrentPlayer(currentPlayer == "X" ? "O" : "X");
-    }
-  }
-
-  const restartGame = () => {
-    setWinner("")
-    setCurrentPlayer("X")
-    setBoard(Array(9).fill(null))
-  }
+export default function TicTacToe() {
+  const [board, setBoard] = useState(Array(9).fill("") as string[]);
+  const [currentPlayer, setCurrentPlayer] = useState("X");
+  const [winner, setWinner] = useState("");
 
   const answers = [
     [0, 1, 2],
@@ -38,7 +18,7 @@ function TicTacToe() {
     [2, 4, 6],
   ];
 
-  const checkForWinner = (board: (string|null)[]) => {
+  const checkForWinner = (board: string[]) => {
     for (let answer of answers) {
       let a = board[answer[0]]
       let b = board[answer[1]]
@@ -50,42 +30,54 @@ function TicTacToe() {
     return "";
   }
 
+  const setMark = (index: number) => {
+    if (winner) return;
+    const newBoard = board.slice();
+    newBoard[index] = currentPlayer;
+    setBoard(newBoard);
+    setCurrentPlayer(currentPlayer == "X" ? "O" : "X");
+    const w = checkForWinner(newBoard);
+    if (w) setWinner(w)
+    else if (newBoard.findIndex(x => x == "") == -1) { // empty
+      setWinner("draw")
+    }
+  }
+
+  const restartGame = () => {
+    setWinner("")
+    setCurrentPlayer("X")
+    setBoard(Array(9).fill(""))
+  }
+  
+  const svgclass = "stroke-secondary fill-secondary";
+
   return (
-    <div className="flex-1 flex flex-col gap-8 all-center">
-      <h1>Tic Tac Toe</h1>
-      <div className="grid grid-cols-3 bg-secondary gap-[1px] select-none">
-        {[...Array(9)].map((_, i) =>
-          <div key={i}
-          className="w-20 h-20 bg-primary p-4 all-center"
-          onClick={() => setValue(i)}
-          >
+    <div className="flex flex-col items-center justify-center gap-4 h-full">
+      <ul className="grid grid-cols-3 bg-secondary gap-[1px] border border-primary select-none">
+        {[...Array(9)].map((_, i) => 
+          <li className="w-20 h-20 p-1 bg-primary" key={i}>
             { 
-              board[i] == "X" ? <Cross className="stroke-secondary" /> :
-              board[i] == "O" ? <Circle className="stroke-secondary" /> : <></>
+              board[i] == "X" ? <Cross title={`${i+1}${board[i]}`} className={svgclass} /> :
+              board[i] == "O" ? <Circle title={`${i+1}${board[i]}`} className={svgclass} /> :
+              <button onClick={() => setMark(i)} className="w-full h-full"/>
             }
-          </div>
+          </li> 
         )}
+      </ul>
+      <div className="flex items-center gap-2">
+        <h2>{ !!winner ? (winner == "draw" ? "Draw" : "Winner: ") : "Current Player: "}</h2>
+        { 
+          winner == "X" ? <Cross title="winnerX" className={`${svgclass} w-12`} /> :
+          winner == "O" ? <Circle title="winnerO" className={`${svgclass} w-12`} /> :
+          winner == "draw" ? <></> :
+          currentPlayer == "X" ? <Cross title="currentPlayerX" className={`${svgclass} w-12`} /> :
+          currentPlayer == "O" ? <Circle title="currentPlayerO" className={`${svgclass} w-12`} /> : <></>
+        }
       </div>
-      <div className="flex gap-2 items-center">
-        {winner ? <>
-          <h2>Winner:</h2>
-          {
-            winner == "X" ? <Cross className="stroke-secondary w-8" /> :
-            winner == "O" ? <Circle className="stroke-secondary w-8" /> : <></>
-          }
-        </> : <>
-          <h2>Current Player:</h2>
-          {
-            currentPlayer == "X" ? <Cross className="stroke-secondary w-8" /> :
-            currentPlayer == "O" ? <Circle className="stroke-secondary w-8" /> : <></>
-          }
-        </>}
-      </div>
-      <div className="h-12">
-        <button onClick={restartGame} className={ !winner ? 'hidden' : '' }>Restart</button>
-      </div>
+      { winner ? 
+        <button className="border border-primary p-2 rounded-sm" onClick={restartGame}>Restart</button> : 
+        <span>&nbsp;</span>
+      }
     </div>
   )
 }
-
-export default TicTacToe;
